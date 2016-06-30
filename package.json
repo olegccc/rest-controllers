@@ -1,0 +1,33 @@
+{
+  "name": "rest-controllers",
+  "version": "0.0.1",
+  "description": "Minimalistic REST controllers framework for ExpressJS",
+  "main": "index.js",
+  "directories": {
+    "example": "examples",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/olegccc/rest-controllers.git"
+  },
+  "keywords": [
+    "expressjs",
+    "controllers",
+    "rest"
+  ],
+  "author": "Oleg Gordeev",
+  "license": "MPL-2.0",
+  "bugs": {
+    "url": "https://github.com/olegccc/rest-controllers/issues"
+  },
+  "homepage": "https://github.com/olegccc/rest-controllers#readme",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "lodash": "^4.13.1",
+    "mime-types": "^2.1.11"
+  }
+}

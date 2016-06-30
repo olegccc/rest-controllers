@@ -52,6 +52,8 @@ In case method return value contains:
 * *string* - the handler will try to treat it as path to resource file path and if it exists it will return appropriate file as response; otherwise it will return string as plain text response
 * any other value - no additional response will be generated; the method should generate response by itself using 'res' object
 
+Promises also accepted as return values. In this case, the promise resolve will be checked against the rules above.
+
 ## router API
 
 Router object supports the following calls:
@@ -65,6 +67,26 @@ Where only first method does actual work and next four methods are shortcuts for
 
 *path* contains rule to check URL after "controller/" part. It can contain string or regular expression. If it is string, it will be joined with controller name and compared to the actual URL. For example, 'method' will be transferred to 'controller/method'. If it is regular expression, it will be used to compare the same URL part going after "controller/". If the expression has groups, they will be passed as arguments to the callback.
 *callback* contains function to be called. The function will be called with 'this' set to the controller instance.
+
+## initialization and options
+
+```javascript
+var express = require('express');
+var app = express();
+var restControllers = require('rest-controllers');
+var options = {
+    ...
+};
+restControllers(app, options);
+```
+The following options supported:
+* *controllers* path to directory where all controllers reside, default 'controllers'
+* *error* error handler function, accepts one parameter with error contents; default undefined
+* *noEmptyRead* set to true to not to create default read handlers without '/id' in URL; default false
+* *resources* path which will be used as resources root; default project root
+* *debug* function to output debug messages
+* *route* regular expression to handle routes; should have one group which will be used as matched url for further parsing; for example, if you want to handle only calls to 'api/controller/method' instead of 'controller/method', you can set it to /^api\/(.+)$/; default will use full url
+* *notFoundHandler* function which will handle requests where no match is found; uses signature handler(req, res); default sends 404 response
 
 ## examples
 
