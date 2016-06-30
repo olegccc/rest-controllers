@@ -35,8 +35,22 @@ module.exports = function(app, options) {
     };
 
     var validMethods = ['get', 'post', 'put', 'delete'];
+    var validFunctions = ['read', 'create', 'write', 'delete'];
 
     var controllersPath = options.controllers || 'controllers';
+
+    function actionToMethod(action) {
+        switch (action) {
+            case 'read':
+                return 'get';
+            case 'write':
+                return 'put';
+            case 'create':
+                return 'post';
+            default:
+                return action;
+        }
+    }
 
     fs.readdir(controllersPath, function(err, files) {
 
@@ -52,7 +66,7 @@ module.exports = function(app, options) {
             }
 
             var controllerName = file.substring(0, file.length-3);
-            controller = require(path.join(controllersPath, controllerName));
+            controller = require(path.resolve(path.join(controllersPath, controllerName)));
             basePath = controllerName.replace('.', '/');
 
             controller.route && controller.route(router);
@@ -65,7 +79,7 @@ module.exports = function(app, options) {
                     return;
                 }
 
-                if (_.includes(validMethods, key)) {
+                if (_.includes(validFunctions, key)) {
                     standardMethods.push(key);
                     return;
                 }
@@ -73,7 +87,7 @@ module.exports = function(app, options) {
                 var match = key.match(/^(read|write|create|delete)([A-Z])(\w+)$/);
 
                 if (match) {
-                    var method = match[1];
+                    var method = actionToMethod(match[1]);
                     var name = match[2].toLowerCase() + match[3];
                     router[method](name, value);
                     return;
@@ -84,7 +98,8 @@ module.exports = function(app, options) {
 
             _.each(standardMethods, function(key) {
                 var value = controller[key];
-                if (key === 'read') {
+                key = actionToMethod(key);
+                if (key === 'get') {
                     router[key](/^([0-9]+)$/, value);
                     if (options.noEmptyRead) {
                         return;
@@ -118,7 +133,7 @@ module.exports = function(app, options) {
                                 return;
                             }
 
-                            var contentType = mimeTypes(filePath);
+                            var contentType = mimeTypes.lookup(filePath);
 
                             if (contentType) {
                                 res.set('Content-Type', contentType);
@@ -146,7 +161,7 @@ module.exports = function(app, options) {
                 args = _.concat(args, match);
             }
 
-            if (req.body) {
+            if (req.method !== 'GET' && req.body) {
                 args.push(req.body);
             }
 
