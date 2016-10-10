@@ -1,6 +1,6 @@
 {
   "name": "rest-controllers",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Minimalistic REST controllers framework for ExpressJS",
   "main": "index.js",
   "directories": {

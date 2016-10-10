@@ -13,9 +13,9 @@ If controller has method
 * read: then HTTP GET requests to *[controller name]* and *[controller name]/id* will be forwarded to this method
 * write: then HTTP PUT requests to *[controller name]* will be forwarded to this method
 * create: then HTTP POST requests to *[controller name]* will be forwarded to this method
-* delete: then HTTP DELETE requests to *[controller name]* will be forwarded to this method
+* remove: then HTTP DELETE requests to *[controller name]* will be forwarded to this method
 * started with underscore: such method will be ignored in routing
-* for any method started with word 'read', 'write', 'create' and 'delete' and followed by capital letter the same convention will be used but the URL will be like *[controller name]/[method name without first word]* and first capital letter will be changed to lowercase, for example, *createDatabase* method of controller *manage.js* will handle POST requests to *manage/database*
+* for any method started with word 'read', 'write', 'create' and 'remove' and followed by capital letter the same convention will be used but the URL will be like *[controller name]/[method name without first word]* and first capital letter will be changed to lowercase, for example, *createDatabase* method of controller *manage.js* will handle POST requests to *manage/database*
 * route: this method will be used during initialization to define custom rules. The method signature will be: *route(router)* where router object has a set of methods to define custom rules (see below); all routes definitions can accept
 * all other method names will be considered as handling GET requests only
 
@@ -27,7 +27,7 @@ method(id, req, res);
 where
 * *req, res* are appropriate ExpressJS request and response objects
 
-Each write/create/delete method will get the following arguments:
+Each write/create/remove method will get the following arguments:
 
 ```javascript
 method(body, req, res);
@@ -61,7 +61,7 @@ Router object supports the following calls:
 * get(path, callback)
 * post(path, callback)
 * put(path, callback)
-* delete(path, callback)
+* remove(path, callback)
 
 Where only first method does actual work and next four methods are shortcuts for appropriate HTTP methods.
 

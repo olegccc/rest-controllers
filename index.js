@@ -5,6 +5,31 @@ var bodyParser = require('body-parser');
 var mimeTypes = require('mime-types');
 const Promise = require('bluebird');
 
+var ignoredMethods = {};
+
+_.each(Object.getOwnPropertyNames({}), function(method) {
+    ignoredMethods[method] = true;
+});
+
+function getObjectMethods(obj) {
+
+    var methods = {};
+
+    _.forOwn(controller, function(value, key) {
+        if (!ignoredMethods[key] && _.isFunction(value)) {
+            methods[key] = true;
+        }
+    });
+
+    _.each(Object.getOwnPropertyNames(Object.getPrototypeOf(obj)), function(key) {
+        if (!ignoredMethods[key] && _.isFunction(obj[key])) {
+            methods[key] = true;
+        }
+    });
+
+    return _.keys(methods);
+}
+
 module.exports = function(app, options) {
 
     return new Promise((resolve, reject) => {
@@ -36,8 +61,7 @@ module.exports = function(app, options) {
             }
         };
 
-        var validMethods = ['get', 'post', 'put', 'delete'];
-        var validFunctions = ['read', 'create', 'write', 'delete'];
+        var validFunctions = ['read', 'create', 'write', 'delete', 'remove'];
 
         var controllersPath = options.controllers || 'controllers';
 
@@ -49,6 +73,8 @@ module.exports = function(app, options) {
                     return 'put';
                 case 'create':
                     return 'post';
+                case 'remove':
+                    return 'delete';
                 default:
                     return action;
             }
@@ -76,9 +102,11 @@ module.exports = function(app, options) {
 
                 var standardMethods = [];
 
-                _.forOwn(controller, function(value, key) {
+                var methods = getObjectMethods(controller);
 
-                    if (!_.isFunction(value) || _.includes(['route'], key) || key.startsWith('_')) {
+                _.each(methods, function(key) {
+
+                    if (_.includes(['route'], key) || key.startsWith('_')) {
                         return;
                     }
 
@@ -87,16 +115,16 @@ module.exports = function(app, options) {
                         return;
                     }
 
-                    var match = key.match(/^(read|write|create|delete)([A-Z])(\w+)$/);
+                    var match = key.match(/^(read|write|create|delete|remove)([A-Z])(\w+)$/);
 
                     if (match) {
                         var method = actionToMethod(match[1]);
                         var name = match[2].toLowerCase() + match[3];
-                        router[method](name, value);
+                        router[method](name, controller[key]);
                         return;
                     }
 
-                    router.get(key, value);
+                    router.get(key, controller[key]);
                 });
 
                 _.each(standardMethods, function(key) {
