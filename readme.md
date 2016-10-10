@@ -80,7 +80,7 @@ var options = {
 restControllers(app, options);
 ```
 The following options supported:
-* *controllers* path to directory where all controllers reside, default 'controllers'
+* *controllers* path to directory where all controllers reside, default 'controllers'; or object with key/value pairs set to each controller name and instance respectively, in case you want to load controller instances manually
 * *error* error handler function, accepts one parameter with error contents; default undefined
 * *noEmptyRead* set to true to not to create default read handlers without '/id' in URL; default false
 * *resources* path which will be used as resources root; default project root

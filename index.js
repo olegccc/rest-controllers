@@ -5,7 +5,9 @@ var bodyParser = require('body-parser');
 var mimeTypes = require('mime-types');
 const Promise = require('bluebird');
 
-var ignoredMethods = {};
+var ignoredMethods = {
+    'constructor': true
+};
 
 _.each(Object.getOwnPropertyNames({}), function(method) {
     ignoredMethods[method] = true;
@@ -15,7 +17,7 @@ function getObjectMethods(obj) {
 
     var methods = {};
 
-    _.forOwn(controller, function(value, key) {
+    _.forOwn(obj, function(value, key) {
         if (!ignoredMethods[key] && _.isFunction(value)) {
             methods[key] = true;
         }
@@ -80,22 +82,10 @@ module.exports = function(app, options) {
             }
         }
 
-        fs.readdir(controllersPath, function(err, files) {
+        function loadControllers(controllers) {
 
-            if (err) {
-                options.error && options.error(err);
-                reject(err);
-                return;
-            }
+            _.each(controllers, function(controller, controllerName) {
 
-            _.each(files, function(file) {
-
-                if (!file.endsWith('.js')) {
-                    return;
-                }
-
-                var controllerName = file.substring(0, file.length-3);
-                controller = require(path.resolve(path.join(controllersPath, controllerName)));
                 basePath = controllerName.replace('.', '/');
 
                 controller.route && controller.route(router);
@@ -270,6 +260,35 @@ module.exports = function(app, options) {
 
             options.done && options.done();
             resolve();
-        });
+        }
+
+        if (_.isObject(controllersPath)) {
+            loadControllers(controllersPath);
+        } else {
+
+            var controllers = {};
+
+            fs.readdir(controllersPath, function(err, files) {
+
+                if (err) {
+                    options.error && options.error(err);
+                    reject(err);
+                    return;
+                }
+
+                _.each(files, function (file) {
+
+                    if (!file.endsWith('.js')) {
+                        return;
+                    }
+
+                    var controllerName = file.substring(0, file.length - 3);
+                    controller = require(path.resolve(path.join(controllersPath, controllerName)));
+                    controllers[controllerName] = controller;
+                });
+
+                loadControllers(controllers);
+            });
+        }
     });
 };
